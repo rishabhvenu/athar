@@ -1,18 +1,23 @@
 import { createClient } from "@/lib/supabase/server";
 
+type WrappedMemory = {
+  mood: string;
+};
+
 export default async function WrappedPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: memories } = await supabase
+  const { data } = await supabase
     .from("memories")
     .select("*")
     .eq("user_id", user?.id);
+  const memories = (data ?? []) as WrappedMemory[];
 
-  const totalMemories = memories?.length || 0;
+  const totalMemories = memories.length;
   
   // Basic stats
-  const moods = memories?.map(m => m.mood) || [];
+  const moods = memories.map((m) => m.mood);
   const topMood = moods.sort((a,b) =>
     moods.filter(v => v===a).length - moods.filter(v => v===b).length
   ).pop() || "calm";
@@ -35,7 +40,7 @@ export default async function WrappedPage() {
           </div>
         </div>
         
-        <p className="italic opacity-90">"A living journal of your spiritual life."</p>
+        <p className="italic opacity-90">&quot;A living journal of your spiritual life.&quot;</p>
       </div>
 
       <button className="bg-gray-900 dark:bg-white text-white dark:text-black px-6 py-3 rounded-full font-bold w-full">

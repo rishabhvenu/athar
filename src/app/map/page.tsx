@@ -1,15 +1,24 @@
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
+
+type Memory = {
+  id: string;
+  surah: number;
+  ayah: number;
+  mood: string;
+  note: string | null;
+  created_at: string;
+};
 
 export default async function MapPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { data: memories } = await supabase
+  const { data } = await supabase
     .from("memories")
     .select("*")
     .eq("user_id", user?.id)
     .order("created_at", { ascending: false });
+  const memories = (data ?? []) as Memory[];
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
@@ -22,13 +31,13 @@ export default async function MapPage() {
       </div>
 
       <div className="flex flex-col gap-6">
-        {memories?.map((mem: any) => (
+        {memories.map((mem) => (
           <div key={mem.id} className="border p-6 rounded-xl shadow-sm">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-xl font-bold">Surah {mem.surah}, Ayah {mem.ayah}</h3>
               <span className="text-sm text-gray-500">{new Date(mem.created_at).toLocaleDateString()}</span>
             </div>
-            <p className="mb-4 text-lg italic">"{mem.note}"</p>
+            <p className="mb-4 text-lg italic">&quot;{mem.note}&quot;</p>
             <span className="bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-sm">
               {mem.mood}
             </span>

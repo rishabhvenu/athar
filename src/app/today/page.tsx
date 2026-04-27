@@ -1,6 +1,12 @@
 import { getTodayCard } from "../actions/today";
 import Link from "next/link";
 
+type Reflection = {
+  id: string;
+  body: string;
+  created_at: string;
+};
+
 export default async function TodayPage() {
   const data = await getTodayCard();
 
@@ -18,6 +24,7 @@ export default async function TodayPage() {
 
   const { card, reflections } = data;
   const memory = card.memory;
+  const typedReflections = (reflections ?? []) as Reflection[];
 
   return (
     <div className="max-w-2xl mx-auto p-8">
@@ -26,7 +33,7 @@ export default async function TodayPage() {
           {card.reason === "anniversary" ? "On this day" : card.reason === "dormant" ? "Revisit" : "Mood Match"}
         </div>
         <h2 className="text-2xl font-bold mb-2">Surah {memory.surah}, Ayah {memory.ayah}</h2>
-        <p className="text-lg italic mb-6">"{memory.note}"</p>
+        <p className="text-lg italic mb-6">&quot;{memory.note}&quot;</p>
         <div className="flex gap-2 mb-8">
           <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
             {memory.mood}
@@ -35,7 +42,7 @@ export default async function TodayPage() {
 
         <div className="border-t pt-6">
           <h3 className="font-bold mb-4">Past Reflections</h3>
-          {reflections?.map((ref: any) => (
+          {typedReflections.map((ref) => (
             <div key={ref.id} className="mb-4 bg-white dark:bg-gray-900 p-4 rounded-lg">
               <p>{ref.body}</p>
               <span className="text-xs text-gray-400">{new Date(ref.created_at).toLocaleDateString()}</span>

@@ -3,9 +3,16 @@
 import { useState } from "react";
 import { performSearch } from "../actions/search";
 
+type SearchResult = {
+  surah: number;
+  ayah: number;
+  text?: string;
+  note?: string;
+};
+
 export default function SearchPage() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -39,10 +46,12 @@ export default function SearchPage() {
       </form>
 
       <div className="flex flex-col gap-4">
-        {results.map((res: any, i) => (
+        {results.map((res, i) => (
           <div key={i} className="border p-6 rounded-xl shadow-sm">
             <h3 className="font-bold text-lg mb-2">Surah {res.surah}, Ayah {res.ayah}</h3>
-            <p className="italic text-gray-700 dark:text-gray-300">"{res.text || res.note}"</p>
+            <p className="italic text-gray-700 dark:text-gray-300">
+              &quot;{res.text || res.note}&quot;
+            </p>
           </div>
         ))}
         {results.length === 0 && !loading && query && (
