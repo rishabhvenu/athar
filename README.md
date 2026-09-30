@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Athar
 
-## Getting Started
+A Quran reflection journal, built as a progressive web app. You tie a verse to a moment in your life, write down what it meant to you, and the app brings those moments back later.
 
-First, run the development server:
+> **Status: work in progress.** The data model, auth, and capture flow are in place. Quran semantic search (`src/lib/mcp.ts`) still returns placeholder data.
+
+## Features
+
+- **Read**: verses and tafsir from the [Quran.com API](https://api.quran.com), cached for a day per verse.
+- **Capture**: save a verse with a mood and a note. If you skip the mood, Gemini classifies the note into one of six (calm, anxious, grateful, grieving, seeking, joyful).
+- **Search**: notes are embedded with `text-embedding-004` and stored in pgvector, so you can search your own reflections by meaning rather than keyword.
+- **Today**: a daily card resurfaces an old memory (on its anniversary, when it matches your mood, or when it has gone untouched), and you can add a new reflection to it.
+- **Memory Map**: a timeline of everything you've saved.
+- **Wrapped**: a year-in-review with your most common mood.
+
+## Stack
+
+- Next.js 16 (App Router, server actions), React 19, Tailwind CSS 4
+- Supabase: Postgres with row-level security on every table, auth, pgvector, pg_cron
+- Google Gemini for mood inference and embeddings
+- Vitest, Testing Library, MSW, and Playwright, run in GitHub Actions on pushes to main and on every pull request
+
+## Running locally
+
+Requires Node 20+, pnpm, and a Supabase project.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+GEMINI_API_KEY=...
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Apply the migrations in `supabase/migrations`, then:
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm dev          # http://localhost:3000
+pnpm test         # unit tests
+pnpm test:e2e     # Playwright
+```
